@@ -1,0 +1,126 @@
+<html>
+<head>
+    <title>Excel Generator Bot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"></link>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-6 text-center">Excel Generator Bot</h2>
+        <form id="userForm" class="space-y-4">
+            <div id="inputSection">
+                <!-- Dynamic user input fields will appear here -->
+                <div id="userCard1" class="user-card">
+                    <div>
+                        <label for="contactType" class="block text-sm font-medium text-gray-700">Contact Type</label>
+                        <select id="contactType1" name="contactType1" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required>
+                            <option value="Vendor">Vendor</option>
+                            <option value="Customer">Customer</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="businessName" class="block text-sm font-medium text-gray-700">Business Name</label>
+                        <input type="text" id="businessName1" name="businessName1" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required>
+                    </div>
+                    <div>
+                        <label for="mobileNumber" class="block text-sm font-medium text-gray-700">Mobile Number</label>
+                        <input type="text" id="mobileNumber1" name="mobileNumber1" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required>
+                    </div>
+                    <div>
+                        <label for="accountNumber" class="block text-sm font-medium text-gray-700">Beneficiary Account Number</label>
+                        <input type="text" id="accountNumber1" name="accountNumber1" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="ifsc" class="block text-sm font-medium text-gray-700">IFSC Code</label>
+                        <input type="text" id="ifsc1" name="ifsc1" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-between items-center">
+                <button type="button" id="addUser" class="bg-blue-500 text-white p-2 rounded-md">Add New User</button>
+                <button type="submit" class="bg-green-500 text-white p-2 rounded-md">Generate Excel</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        let userCount = 1; // To keep track of the number of user forms
+        let fileCount = 1; // Track the file number to change file name dynamically
+
+        // Function to add new user input fields
+        document.getElementById('addUser').addEventListener('click', function() {
+            // Hide previous user form if any
+            document.getElementById(`userCard${userCount}`).style.display = 'none';
+            userCount++;
+
+            const newUserCard = document.createElement('div');
+            newUserCard.classList.add('user-card');
+            newUserCard.id = `userCard${userCount}`;
+
+            // Create the new input fields (same as initial form)
+            newUserCard.innerHTML = `
+                <div>
+                    <label for="contactType" class="block text-sm font-medium text-gray-700">Contact Type</label>
+                    <select id="contactType${userCount}" name="contactType${userCount}" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required>
+                        <option value="Vendor">Vendor</option>
+                        <option value="Customer">Customer</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="businessName" class="block text-sm font-medium text-gray-700">Business Name</label>
+                    <input type="text" id="businessName${userCount}" name="businessName${userCount}" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required>
+                </div>
+                <div>
+                    <label for="mobileNumber" class="block text-sm font-medium text-gray-700">Mobile Number</label>
+                    <input type="text" id="mobileNumber${userCount}" name="mobileNumber${userCount}" class="mt-1 block w-full p-2 border border-gray-300 rounded-md" required>
+                </div>
+                <div>
+                    <label for="accountNumber" class="block text-sm font-medium text-gray-700">Beneficiary Account Number</label>
+                    <input type="text" id="accountNumber${userCount}" name="accountNumber${userCount}" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                </div>
+                <div>
+                    <label for="ifsc" class="block text-sm font-medium text-gray-700">IFSC Code</label>
+                    <input type="text" id="ifsc${userCount}" name="ifsc${userCount}" class="mt-1 block w-full p-2 border border-gray-300 rounded-md">
+                </div>
+            `;
+
+            document.getElementById('inputSection').appendChild(newUserCard);
+        });
+
+        // Function to handle the form submission and generate Excel
+        document.getElementById('userForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            const data = [
+                ["Contact Type", "Business Name", "Contact Person Name", "Mobile Number", "E-Mail ID", "Billing Name", "Billing Address", "Billing Code Pincode", "Shipping Name", "Shipping Address", "Shipping Code Pincode", "Beneficiary Account Number", "IFSC Code", "Bank Name", "Branch Name", "PAN", "GSTIN", "GST Registration Type", "Is e-Commerce Operator?", "Is Transporter?", "Transporter ID", "TDS", "Notes"]
+            ];
+
+            // Collect data from all user entries
+            for (let i = 1; i <= userCount; i++) {
+                const contactType = document.getElementById(`contactType${i}`).value;
+                const businessName = document.getElementById(`businessName${i}`).value.trim();
+                const mobileNumber = document.getElementById(`mobileNumber${i}`).value;
+                const accountNumber = document.getElementById(`accountNumber${i}`).value;
+                const ifsc = document.getElementById(`ifsc${i}`).value;
+
+                // Push the user data to the array
+                data.push([contactType, businessName, businessName, mobileNumber, "", businessName, "", "", "", "", "", accountNumber, ifsc, "", "", "", "", "", "", "", "", "", ""]);
+            }
+
+            // Generate Excel sheet with collected data
+            const ws = XLSX.utils.aoa_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+
+            // Dynamically generate file name using fileCount
+            const fileName = `Add${fileCount}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+
+            // Increment the file count for the next time
+            fileCount++;
+        });
+    </script>
+</body>
+</html>
