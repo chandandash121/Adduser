@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <title>Excel Generator Bot</title>
@@ -8,6 +9,12 @@
 <body class="bg-gray-100 flex items-center justify-center min-h-screen">
     <div class="bg-white p-8 rounded shadow-md w-full max-w-md">
         <h2 class="text-2xl font-bold mb-6 text-center">Excel Generator Bot</h2>
+
+        <!-- Display the generated file name here -->
+        <div id="generatedFileName" class="text-sm text-green-600 mb-4 text-center hidden">
+            File Generated: <span id="fileName"></span>
+        </div>
+
         <form id="userForm" class="space-y-4">
             <div id="inputSection">
                 <!-- Dynamic user input fields will appear here -->
@@ -47,7 +54,6 @@
 
     <script>
         let userCount = 1; // To keep track of the number of user forms
-        let fileCount = 1; // Track the file number to change file name dynamically
 
         // Function to add new user input fields
         document.getElementById('addUser').addEventListener('click', function() {
@@ -109,17 +115,20 @@
                 data.push([contactType, businessName, businessName, mobileNumber, "", businessName, "", "", "", "", "", accountNumber, ifsc, "", "", "", "", "", "", "", "", "", ""]);
             }
 
+            // Generate a random file name
+            const randomFileName = `Excel_${Math.random().toString(36).substr(2, 8)}.xlsx`;
+
             // Generate Excel sheet with collected data
             const ws = XLSX.utils.aoa_to_sheet(data);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
 
-            // Dynamically generate file name using fileCount
-            const fileName = `Add${fileCount}.xlsx`;
-            XLSX.writeFile(wb, fileName);
+            // Download the Excel file
+            XLSX.writeFile(wb, randomFileName);
 
-            // Increment the file count for the next time
-            fileCount++;
+            // Show the generated file name message
+            document.getElementById('fileName').textContent = randomFileName;
+            document.getElementById('generatedFileName').classList.remove('hidden');
         });
     </script>
 </body>
